@@ -1,2 +1,2 @@
 # kindi
-Kindi, voice agent.
+Kindi, your productivity compagnon.
