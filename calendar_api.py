@@ -25,21 +25,30 @@ class GoogleCalendarService :
   def _initialize_service(cls):
       """Initializes the service instance for the first time."""
       if os.path.exists("token.json"):
+          # If token.json exists, load the credentials
           cls._creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-          # If no valid credentials, start the authorization flow
-          if not cls._creds or not cls._creds.valid:
-              if cls._creds and cls._creds.expired and cls._creds.refresh_token:
-                  cls._creds.refresh(Request())
-              else:
-                  flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-                  cls._creds = flow.run_local_server(port=0)
+      else:
+          # If token.json doesn't exist, start the authorization flow
+          flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+          cls._creds = flow.run_local_server(port=0)
 
-              # Save credentials for next use
+          # Save credentials for the next run
+          with open("token.json", "w") as token_file:
+              token_file.write(cls._creds.to_json())
+
+      # If the credentials are not valid, refresh or prompt the user for login
+      if not cls._creds or not cls._creds.valid:
+          if cls._creds and cls._creds.expired and cls._creds.refresh_token:
+              cls._creds.refresh(Request())
+          else:
+              flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+              cls._creds = flow.run_local_server(port=0)
               with open("token.json", "w") as token_file:
                   token_file.write(cls._creds.to_json())
 
-          # Build the service instance
-          cls._service = build("calendar", "v3", credentials=cls._creds)
+      # Build the service instance
+      cls._service = build("calendar", "v3", credentials=cls._creds)
+
 
 
 def check_time_availability(min_time, max_time):
@@ -75,7 +84,6 @@ def main():
     status = check_time_availability(start, end)
     if status :
       body = {
-      "id" : "first kindi event",
       "start": {"dateTime":start},
       "end":{"dateTime" :end},
       "description": "first event created while building the kindi app"
