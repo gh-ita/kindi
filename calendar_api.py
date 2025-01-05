@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 class GoogleCalendarService : 
   _service = None
@@ -62,26 +62,27 @@ def add_event(body):
   service = GoogleCalendarService.get_service()
   result = (
     service.events()
-    .insert(body = body) 
+    .insert(calendarId = "primary", body = body) 
     .execute()
   )
   return result
 
 def main():
   try:
-    start = datetime.datetime.utcnow().isoformat() + "Z"
-    end = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
+    start = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
+    end = (datetime.datetime.utcnow()+ datetime.timedelta(hours=8)).isoformat() + "Z"
     #False the time slot isn't free, True it is free
     status = check_time_availability(start, end)
     if status :
       body = {
-      "calendar_id": "primary",
       "id" : "first kindi event",
       "start": {"dateTime":start},
       "end":{"dateTime" :end},
       "description": "first event created while building the kindi app"
       }
-      return add_event(body)
+      res = add_event(body)
+      print("event added")
+      return res
     print('time slot full')
     return status
     
