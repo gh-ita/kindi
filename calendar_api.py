@@ -10,7 +10,7 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"]
 
-class GoogleCalendarService :
+class GoogleCalendarService : 
   _service = None
   _creds = None 
   
@@ -23,23 +23,24 @@ class GoogleCalendarService :
   
   @classmethod
   def _initialize_service(cls):
-    """initializes the service instance for the first time"""
-    if os.path.exists("token.json"):
-      cls._creds = Credentials.from_authorized_user_file("token.json", SCOPES)
-      # If no valid credentials, start the authorization flow
-      if not cls._creds or not cls._creds.valid:
-          if cls._creds and cls._creds.expired and cls._creds.refresh_token:
-              cls._creds.refresh(Request())
-          else:
-              flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-              cls._creds = flow.run_local_server(port=0)
+      """Initializes the service instance for the first time."""
+      if os.path.exists("token.json"):
+          cls._creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+          # If no valid credentials, start the authorization flow
+          if not cls._creds or not cls._creds.valid:
+              if cls._creds and cls._creds.expired and cls._creds.refresh_token:
+                  cls._creds.refresh(Request())
+              else:
+                  flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+                  cls._creds = flow.run_local_server(port=0)
 
-          # Save credentials for next use
-          with open("token.json", "w") as token_file:
-              token_file.write(cls._creds.to_json())
+              # Save credentials for next use
+              with open("token.json", "w") as token_file:
+                  token_file.write(cls._creds.to_json())
 
-      # Build the service instance
-      cls._service = build("calendar", "v3", credentials=cls._creds)
+          # Build the service instance
+          cls._service = build("calendar", "v3", credentials=cls._creds)
+
 
 def check_time_availability(min_time, max_time):
   service = GoogleCalendarService.get_service()
@@ -49,34 +50,46 @@ def check_time_availability(min_time, max_time):
         "items": [{"id": "primary"}]
     }
   result = (
-    service.freebusy()
-    .query(body = body) 
-    .execute()
+    service.freebusy().query(body=body).execute()
   )
   busy_list = result["calendars"]["primary"]["busy"]
   if not busy_list :
     return True
   return False
-  
-def add_event(event):
+
+def add_event(body):
+  """inserts an event specified in the input as json object"""
   service = GoogleCalendarService.get_service()
-  body = {
-    }
   result = (
     service.events()
     .insert(body = body) 
     .execute()
   )
+  return result
 
 def main():
   try:
-    min = datetime.datetime.utcnow().isoformat() + "Z"
-    max = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
+    start = datetime.datetime.utcnow().isoformat() + "Z"
+    end = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
     #False the time slot isn't free, True it is free
-    status = check_time_availability(min, max)
+    status = check_time_availability(start, end)
+    if status :
+      body = {
+      "calendar_id": "primary",
+      "id" : "first kindi event",
+      "start": {"dateTime":start},
+      "end":{"dateTime" :end},
+      "description": "first event created while building the kindi app"
+      }
+      return add_event(body)
+    print('time slot full')
+    return status
+    
+
   except HttpError as error:
     print(f"An error occurred: {error}")
 
 
 if __name__ == "__main__":
   main()
+  
