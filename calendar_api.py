@@ -53,13 +53,27 @@ def check_time_availability(min_time, max_time):
     .query(body = body) 
     .execute()
   )
-  print(result)
+  busy_list = result["calendars"]["primary"]["busy"]
+  if not busy_list :
+    return True
+  return False
+  
+def add_event(event):
+  service = GoogleCalendarService.get_service()
+  body = {
+    }
+  result = (
+    service.events()
+    .insert(body = body) 
+    .execute()
+  )
 
 def main():
   try:
     min = datetime.datetime.utcnow().isoformat() + "Z"
-    max = (datetime.datetime.utcnow()+ datetime.timedelta(hours=2)).isoformat() + "Z"
-    check_time_availability(min, max)
+    max = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
+    #False the time slot isn't free, True it is free
+    status = check_time_availability(min, max)
   except HttpError as error:
     print(f"An error occurred: {error}")
 
