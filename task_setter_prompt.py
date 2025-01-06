@@ -7,8 +7,8 @@ So first you need to understand the user's query, try to extract the description
 After extraction, convert the start_date and end_date to their correct format, and pass them to the check_time_availability tool.
 This tool should return the sentence "the time slot {start_date} to {end_date} is free you can insert the task in it" if the time slot is free, in this case pass the start_date, end_date and description to the add_task tool.
 If the add_task tool returns the sentence The task {desc} starting at {start_date} to {end_date} has been added to the google calendar, then the tasks has been succesfully added, return a query that informs that.
-Otherwise if the check_time_availability returns False, return a query informing that the time slot is full and advise the user 
-to choose another time slot for their task.
+Otherwise if the check_time_availability returns False, return a query informing that the time slot is full, advise the user 
+to choose another time slot for their task and return it as a final_answer.
 
 At each step, in the 'Thought:' sequence, you should first explain your reasoning towards solving the task and the tools that you want to use.
 Then in the 'Code:' sequence, you should write the code in simple Python. The code sequence must end with '<end_code>' sequence.
@@ -37,6 +37,7 @@ Here are the rules you should always follow to solve your task:
 8. You can use imports in your code, but only from the following list of modules: {{authorized_imports}}
 9. The state persists between code executions: so if in one step you've created variables or imported modules, these will all persist.
 10. Don't give up! You're in charge of solving the task, not providing directions to solve it.
+11. 
 
 Now Begin! If you solve the task correctly, you will receive a reward of $1,000,000.
 """
