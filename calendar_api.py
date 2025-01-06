@@ -6,9 +6,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+from transformers import tool
+from dotenv import load_dotenv
+import os 
 
+load_dotenv
 # If modifying these scopes, delete the file token.json.
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
+SCOPES = os.getenv('SCOPES')
 
 class GoogleCalendarService : 
   _service = None
@@ -49,46 +53,87 @@ class GoogleCalendarService :
       # Build the service instance
       cls._service = build("calendar", "v3", credentials=cls._creds)
 
+  
+@tool
+def check_time_availability(start_date:str, end_date:str)-> str:
+  """
+    Check if the specified time slot is available in the user's Google Calendar.
 
+    This function verifies whether the time slot defined by start_date and end_date
+    is free or occupied. It returns a sentence informing whether the time slot is free or not.
 
-def check_time_availability(min_time, max_time):
-  service = GoogleCalendarService.get_service()
+    Args:
+        start_date: The start time of the time slot, formatted as an ISO 8601 string (e.g., "2023-01-01T10:00:00Z").
+        end_date: The end time of the time slot, formatted as an ISO 8601 string (e.g., "2023-01-01T11:00:00Z").
+
+    """
+    
+  #service = GoogleCalendarService.get_service()
+  SCOPES = ["https://www.googleapis.com/auth/calendar"]
+  token = {"token": "ya29.a0ARW5m74TSEM9Q8w_HqiUJlRVnyrPZNFM1Y-lpO520M1TEr6ER6PfrPCKspuykl8gEBQy6tyxb2mLJNajLg-hFAU_DiuYPGVm_wchEvLZNPw61wIODxfxX0b7uWj0wCI7stoHP2lCuUeFDnOiFs1YV_kZ1hYITdFySzxucB5eaCgYKAXQSARISFQHGX2MiB5YP8jwTxFBeU167wBpwgg0175", "refresh_token": "1//03kYHPa9filyxCgYIARAAGAMSNwF-L9IrWw-omHgQEpd5ndo2dwH0QnpNbJF4ool1JPe_rx60fmz1B7Mqjo_vxfm_wrncys-uN28", "token_uri": "https://oauth2.googleapis.com/token", "client_id": "67080987154-e5jl5oj52p77eejgtd3bbpa611otp74f.apps.googleusercontent.com", "client_secret": "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", "scopes": ["https://www.googleapis.com/auth/calendar"], "universe_domain": "googleapis.com", "account": "", "expiry": "2025-01-05T09:59:37.840425Z"}
+  creds = Credentials.from_authorized_user_info(token, SCOPES)
+  service = build("calendar", "v3", credentials=creds)
   body = {
-        "timeMin": min_time,
-        "timeMax": max_time,
+        "timeMin": start_date,
+        "timeMax": end_date,
         "items": [{"id": "primary"}]
     }
-  result = (
-    service.freebusy().query(body=body).execute()
-  )
-  busy_list = result["calendars"]["primary"]["busy"]
-  if not busy_list :
-    return True
-  return False
+  try :
+    result = (
+      service.freebusy().query(body=body).execute()
+    )
+    busy_list = result["calendars"]["primary"]["busy"]
+    if not busy_list :
+      return f"the time slot {start_date} to {end_date} is free you can insert the task in it"
+    else :
+      return f"the time slot {start_date} to {end_date} is not free you can't insert the task in it"
+  except Exception as e:
+    print(f"An error occured {e}")
 
-def add_event(body):
-  """inserts an event specified in the input as json object"""
-  service = GoogleCalendarService.get_service()
-  result = (
-    service.events()
-    .insert(calendarId = "primary", body = body) 
-    .execute()
-  )
-  return result
+@tool
+def add_task(start_date:str, end_date:str, desc:str)->str:
+  """
+  This tool allows users to add a task. with a defined start_date and end_date, 
+  along with a description, to their Google Calendar. 
+  It is called after checking that the time slot is available using the check_time_availability method.
+  It returns a sentence .
+  
+  Args:
+      start_date: The start time of the task, formatted as an ISO 8601 string (e.g., "2023-01-01T10:00:00Z").
+      end_date: The end time of the task, formatted as an ISO 8601 string (e.g., "2023-01-01T11:00:00Z").
+      desc: A brief description of the task to be added to the calendar.
+
+  """
+  #service = GoogleCalendarService.get_service()
+  SCOPES = ["https://www.googleapis.com/auth/calendar"]
+  token = {"token": "ya29.a0ARW5m74TSEM9Q8w_HqiUJlRVnyrPZNFM1Y-lpO520M1TEr6ER6PfrPCKspuykl8gEBQy6tyxb2mLJNajLg-hFAU_DiuYPGVm_wchEvLZNPw61wIODxfxX0b7uWj0wCI7stoHP2lCuUeFDnOiFs1YV_kZ1hYITdFySzxucB5eaCgYKAXQSARISFQHGX2MiB5YP8jwTxFBeU167wBpwgg0175", "refresh_token": "1//03kYHPa9filyxCgYIARAAGAMSNwF-L9IrWw-omHgQEpd5ndo2dwH0QnpNbJF4ool1JPe_rx60fmz1B7Mqjo_vxfm_wrncys-uN28", "token_uri": "https://oauth2.googleapis.com/token", "client_id": "67080987154-e5jl5oj52p77eejgtd3bbpa611otp74f.apps.googleusercontent.com", "client_secret": "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", "scopes": ["https://www.googleapis.com/auth/calendar"], "universe_domain": "googleapis.com", "account": "", "expiry": "2025-01-05T09:59:37.840425Z"}
+  creds = Credentials.from_authorized_user_info(token, SCOPES)
+  service = build("calendar", "v3", credentials=creds)
+  body = {
+      "start": {"dateTime":start_date},
+      "end":{"dateTime" :end_date},
+      "description": desc
+      }
+  try:
+    result = (
+      service.events()
+      .insert(calendarId = "primary", body = body) 
+      .execute()
+    )
+    print(result)
+    return f"The task {desc} starting at {start_date} to {end_date} has been added to the google calendar"
+  except Exception as e:
+    print(f"An error occured: {e}")
 
 def main():
   try:
     start = (datetime.datetime.utcnow()+ datetime.timedelta(hours=6)).isoformat() + "Z"
     end = (datetime.datetime.utcnow()+ datetime.timedelta(hours=8)).isoformat() + "Z"
+    desc = "first event created while building the kindi app"
     #False the time slot isn't free, True it is free
     status = check_time_availability(start, end)
     if status :
-      body = {
-      "start": {"dateTime":start},
-      "end":{"dateTime" :end},
-      "description": "first event created while building the kindi app"
-      }
-      res = add_event(body)
+      res = add_task(start, end, desc)
       print("event added")
       return res
     print('time slot full')
