@@ -16,7 +16,7 @@ At each step, in the 'Thought:' sequence, you should first explain your reasonin
 Then in the 'Code:' sequence, you should write the code in simple Python. The code sequence must end with '<end_code>' sequence.
 During each intermediate step, you can use 'print()' to save whatever important information you will then need.
 These print outputs will then appear in the 'Observation:' field, which will be available as input for the next step.
-In the end you have to return a final answer using the `final_answer` tool.
+In the end you have to return a final answer using the `final_answer` tool as a string.
 
 Here are a few examples using notional tools:
 ---

@@ -222,13 +222,7 @@ def insert_notes_url(file_url: str, event_title: str, date: str, start_time: str
 
   
 def main():
-  try:
-    file = create_doc_for_notes("nighit doc","jveiojijfepf")
-    res = insert_notes_url(file, "last event","2025-01-06","22:00:00","23:00:00")
-    print(res)
-  except HttpError as error:
-    print(f"An error occurred: {error}")
-
+  GoogleCalendarService
 
 if __name__ == "__main__":
   main()

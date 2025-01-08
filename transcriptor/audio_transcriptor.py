@@ -70,20 +70,18 @@ def transcribe_audio(model_name="small", energy_threshold=1200, record_timeout=0
                     phrase_complete = True
                 phrase_time = now
 
-                # Combine audio data from the queue
                 audio_data = b''.join(data_queue.queue)
                 data_queue.queue.clear()
 
-                # Convert in-memory buffer to something the model can use directly
+
                 audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
 
-                # Transcribe the audio
+
                 result = audio_model.transcribe(audio_np, fp16=torch.cuda.is_available())
                 text = result['text'].strip()
 
-                # Print transcription
+  
                 print(f"Transcription: {text}")
-                # Add transcription to the list
                 if phrase_complete:
                     transcription += text
                 else:
@@ -93,7 +91,7 @@ def transcribe_audio(model_name="small", energy_threshold=1200, record_timeout=0
                         transcription += text
                 if re.search(r'\bokay\b', text, re.IGNORECASE):
                     print("\nKeyword detected. Stopping transcription.")
-                    stop_listening(wait_for_stop=False)  # Stop the background listener
+                    stop_listening(wait_for_stop=False)  
                     break
 
             else:
@@ -101,30 +99,25 @@ def transcribe_audio(model_name="small", energy_threshold=1200, record_timeout=0
 
         except KeyboardInterrupt:
             print("\nManual interruption. Stopping transcription.")
-            stop_listening(wait_for_stop=False)  # Stop the background listener
+            stop_listening(wait_for_stop=False)  
             break
     return transcription
 
 
 def main():
-    # Argument parser for user input (optional)
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="small", help="Model to use", choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--energy_threshold", default=1200, help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=0, help="How real time the recording is in seconds.", type=float)
     parser.add_argument("--phrase_timeout", default=0.2, help="How much empty space between recordings before we consider it a new line in the transcription.", type=float)
 
-    # Make `default_microphone` optional
     if 'linux' in platform:
         parser.add_argument("--default_microphone", default=None, help="Default microphone name for SpeechRecognition.", type=str)
 
-    # Parse the arguments
     args = parser.parse_args()
 
-    # Ensure that the default_microphone argument is passed only when it exists
     mic_name = getattr(args, 'default_microphone', None)
 
-    # Call the transcribe_audio function
     transcriptions = transcribe_audio(
         model_name=args.model,
         energy_threshold=args.energy_threshold,

@@ -25,7 +25,6 @@ def tts_agent(text: str) -> None:
     audio = AudioSegment.from_file(audio_buffer, format="mp3")
     play(audio)
 
-tts_agent("holllaaaaa ghita miaou")
 
 
 
