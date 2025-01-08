@@ -4,7 +4,8 @@ The project has three agents :
 - task setter agent : it sets the task prompted by the user to their google calendar, the user has to specify the name, start time and end time of the task.
 - project planning agent : it plans the project, generate tasks and their deadlines then add each task to the user's google calendar
 - meeting agent : this agent takes a record of the user's meetings and generates notes, stores them in a google drive file, and appends its url to the google calendar's meeting event.
-- Here's the link for the demo : https://drive.google.com/file/d/1kJcUNm_iU4ewJiiTEtXOBCPsgrC33Szp/view?usp=sharing 
+- Here's the link for the demo : https://drive.google.com/file/d/1kJcUNm_iU4ewJiiTEtXOBCPsgrC33Szp/view?usp=sharing
+- Here's a link to a very bad version of the demo since it has been compressed 3 times : https://github.com/user-attachments/assets/25f543f3-3a30-45ea-aa61-f10939f0cb9f
 
 To run the project :
 - install the requirements in the requirements file by running from the main directory 'kindi' : pip install -r requirements.txt (would be better to install the requirements in a virtual env)
