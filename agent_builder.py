@@ -2,8 +2,6 @@ from smolagents import LiteLLMModel, CodeAgent
 from huggingface_hub import login
 from dotenv import load_dotenv
 from os import getenv
-from calendar_api import check_time_availability, add_task
-from task_setter_prompt import task_setter_system_prompt
 
 # Load environment variables
 load_dotenv()
@@ -19,7 +17,7 @@ class Agent:
         self.tools = tools if tools is not None else []
         self.system_prompt = system_prompt
         self.add_base_tools = add_base_tools
-        self.model = model  # Fixed typo from 'modle' to 'model'
+        self.model = model  
         self.managed_agents = managed_agents
 
     def __str__(self):
