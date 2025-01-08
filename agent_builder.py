@@ -68,6 +68,7 @@ class AgentBuilder:
         self.managed_agents = value
         return self
 
+
     def build(self):
         return CodeAgent(
             tools=self.tools,

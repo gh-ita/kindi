@@ -1,12 +1,12 @@
 from huggingface_hub import login 
 from dotenv import load_dotenv
-from smolagents import ManagedAgent, CodeAgent, LiteLLMModel
+from smolagents import ManagedAgent
 from os import getenv
 from g_calendar_api.calendar_api import check_time_availability, add_task
 from task_setter_agent.task_setter_prompt import task_setter_system_prompt
 from agent_builder import AgentBuilder
 from project_planner_agent.project_planner_prompt import project_planner_prompt
-from manager_prompt import manager_agent_prompt
+
 
 load_dotenv()
 #HUGGINGFACEHUB_API_TOKEN
@@ -42,13 +42,4 @@ project_planner_agent = (agent_builder
             .build())
 
 
-"""managed_project_planner_agent=ManagedAgent(agent=project_planner_agent,
-                                             name="project_planner",
-                                             description="Plans the project for you, if your query contains \
-                                                 a project planning task give it your query")
-model=LiteLLMModel(model_id='openai/gpt-4o',
-                        api_base=None,
-                        api_key=getenv('OPEN_AI_KEY'))
 
-manager_agent=CodeAgent(tools=[], model=model, system_prompt=manager_agent_prompt, managed_agents=[managed_task_setting_agent, managed_project_planner_agent])
-"""
