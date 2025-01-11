@@ -10,6 +10,11 @@ To run the project :
 - set the environment variables values in the .env file :
 HUGGINGFACEHUB_API_TOKEN = ####You need to create an account in hugging face and get a key###
 OPEN_AI_KEY = ####Your openai api key#####
+CLIENT_ID = ####Google api client id 
+CLIENT_SECRET = ####Google api client secret 
+REDIRECT_URI = ####Google OAuth redirect URI 
+PINECONE_API_KEY = ####Pinecone API key 
+
 - for the tts you need to install FFmpeg here's the link to do so:
 https://ffmpeg.org/download.html#build-windows 
 - For the google api key you will have to create a google api key, activate the google calendar and drive services, upload the credentials file, then generate the tokens.json file by running the calendar_api script in the g_calendar_api package, then copy the token from the token.json file and paste in the token variable defined in each method inside the calendar_api script
