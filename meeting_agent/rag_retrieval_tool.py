@@ -1,9 +1,9 @@
 from smolagents import Tool
-from langchain_community.retrievers import BM25Retriever
+from pinecone.grpc import PineconeGRPC as pinecone
 
-class RetrieverTool(Tool):
-    name = "retriever"
-    description = "Uses semantic search to retrieve the parts of meeting transcription that could be most relevant to answer your query."
+class PineconeRetrieverTool(Tool):
+    name = "pinecone_retriever"
+    description = "Uses Pinecone's vector-based retrieval to find the most relevant parts of meeting transcription based on the query."
     inputs = {
         "query": {
             "type": "string",
@@ -12,21 +12,44 @@ class RetrieverTool(Tool):
     }
     output_type = "string"
 
-    def __init__(self, docs, **kwargs):
+    def __init__(self, index_name, embedding_model, pc, top_k=3, **kwargs):
+        """
+        Initialize the PineconeRetrieverTool.
+
+        :param index_name: Name of the Pinecone index to query.
+        :param embedding_model: Model to use for generating query embeddings.
+        :param namespace: Namespace to limit the search scope (default is 'default').
+        :param top_k: Number of top results to retrieve (default is 3).
+        """
         super().__init__(**kwargs)
-        self.retriever = BM25Retriever.from_documents(
-            docs, k=10
-        )
+        self.index = pinecone.Index(index_name)
+        self.embedding_model = embedding_model
+        self.namespace = index_name
+        self.top_k = top_k
+        self.pc = pc
 
     def forward(self, query: str) -> str:
         assert isinstance(query, str), "Your search query must be a string"
+        query_embedding = self.pc.inference.embed(
+            model="multilingual-e5-large",
+            inputs=[query],
+            parameters={"input_type": "query"}
+        )[0].values
 
-        docs = self.retriever.invoke(
-            query,
+        results = self.index.query(
+            namespace=self.namespace,
+            vector=query_embedding,
+            top_k=self.top_k,
+            include_values=False,
+            include_metadata=True
         )
-        return "\nRetrieved documents:\n" + "".join(
+
+        if not results.matches:
+            return "No relevant documents found."
+
+        return "\nRetrieved documents:\n" + "\n".join(
             [
-                f"\n\n===== Document {str(i)} =====\n" + doc.page_content
-                for i, doc in enumerate(docs)
+                f"\n\n===== Document {i+1} =====\nMetadata: {match.metadata}\nScore: {match.score}"
+                for i, match in enumerate(results.matches)
             ]
         )

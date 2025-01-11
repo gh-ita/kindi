@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Login</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="icon" type="image/x-icon" href="static/favicon-32x32.png">
+</head>
+<body>
+    <div class="container text-center mt-5">
+        <h1>Login with Google</h1>
+        <p>Click the button below to authenticate with Google and access your Calendar.</p>
+        <button id="google-login-btn" class="btn btn-primary">Login with Google</button>
+    </div>
+
+    <script>
+        document.getElementById("google-login-btn").addEventListener("click", function () {
+            fetch('/generate-oauth-url')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.url) {
+                        window.location.href = data.url;
+                    } else {
+                        alert("Failed to generate OAuth URL");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        });
+    </script>
+</body>
+</html>
