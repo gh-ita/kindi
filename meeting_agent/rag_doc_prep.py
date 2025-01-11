@@ -32,22 +32,6 @@ class DocPrep:
 
 
 
-#Example of code to try the class
-"""
-transcript_mock = ""
-The project timeline needs to be adjusted for the next quarter. Alice will be working on the budget review.
-Bob is responsible for the new system deployment, and Charlie will focus on the marketing strategy.
-The next meeting is scheduled for the following week to discuss the next steps.
-""
-meeting = {
-            "name": "first meeting",
-            "timestamp": "2025-01-07T10:00:00"
-            }
-doc_prep_instance = DocPrep(meeting)
 
-prepared_docs = doc_prep_instance.prepare_document(transcript_mock)
-
-for doc in prepared_docs:
-    print(doc.page_content)"""
 
 
